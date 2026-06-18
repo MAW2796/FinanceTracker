@@ -1,0 +1,119 @@
+﻿@model FinanceTracker.Models.Transaction
+
+@{
+    ViewData["Title"] = "Edit Transaction";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Edit Transaction</h3>
+        <small class="text-muted">Perbarui data transaksi kamu</small>
+    </div>
+
+    <!-- CARD FORM -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-3">
+
+                    <!-- DATE -->
+                    <div class="col-md-6">
+                        <label asp-for="Date" class="form-label fw-semibold"></label>
+                        <input asp-for="Date" class="form-control" type="date" />
+                        <span asp-validation-for="Date" class="text-danger small"></span>
+                    </div>
+
+                    <!-- AMOUNT -->
+                    <div class="col-md-6">
+                        <label asp-for="Amount" class="form-label fw-semibold"></label>
+
+                        <input type="text"
+                               id="amountInput"
+                               name="Amount"
+                               class="form-control"
+                               placeholder="Contoh: 1.000.000"
+                               value="@(Model?.Amount > 0 ? Convert.ToInt64(Model.Amount).ToString() : "")" />
+
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+
+                    <!-- CATEGORY -->
+                    <div class="col-md-6">
+                        <label asp-for="CategoryId" class="form-label fw-semibold">Kategori</label>
+                        @Html.DropDownListFor(model => model.CategoryId, (SelectList)ViewData["CategoryId"],
+                        "Pilih Kategori", new { @class = "form-select" })
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div class="col-md-12">
+                        <label asp-for="Description" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"
+                                  placeholder="Contoh: Beli bensin, gaji bulanan, dll"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <!-- ACTION -->
+                <div class="mt-4 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        ← Kembali
+                    </a>
+
+                    <button type="submit" class="btn btn-success px-4">
+                        Update
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            function formatNumber(value) {
+                return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            function removeFormat(value) {
+                return value.replace(/\./g, "");
+            }
+
+            const amountInput = document.getElementById("amountInput");
+
+            if (amountInput) {
+                // Format nilai awal saat halaman load
+                let initialValue = amountInput.value.replace(/\D/g, "");
+                if (initialValue) {
+                    amountInput.value = formatNumber(initialValue);
+                }
+
+                amountInput.addEventListener("input", function () {
+                    let value = this.value.replace(/\D/g, "");
+
+                    if (!value) {
+                        this.value = "";
+                        return;
+                    }
+
+                    this.value = formatNumber(value);
+                });
+
+                // Submit hanya form tempat input ini berada
+                amountInput.closest("form").addEventListener("submit", function () {
+                    amountInput.value = removeFormat(amountInput.value);
+                });
+            }
+        </script>
+
+        <partial name="_ValidationScriptsPartial" />
+    }
+
+</div>

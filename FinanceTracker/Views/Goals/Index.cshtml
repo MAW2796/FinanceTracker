@@ -1,0 +1,212 @@
+﻿@model FinanceTracker.Models.ViewModels.GoalIndexViewModel
+
+@{
+    ViewData["Title"] = "Goals";
+
+    var activeGoals = Model.Goals.Where(x => x.CurrentAmount < x.TargetAmount).ToList();
+    var completedGoals = Model.Goals.Where(x => x.CurrentAmount >= x.TargetAmount).ToList();
+
+    DateTime today = DateTime.Today;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">🎯 Goals</h2>
+        <a asp-action="Create" class="btn btn-primary rounded-3">+ Tambah Goal</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success rounded-4">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger rounded-4">@TempData["Error"]</div>
+    }
+
+    <!-- 🔥 DASHBOARD RINGKASAN -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <small class="text-muted d-block">🎯 Goal Aktif</small>
+                    <h3 class="fw-bold mb-0">@Model.ActiveCount</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <small class="text-muted d-block">🏆 Goal Tercapai</small>
+                    <h3 class="fw-bold mb-0">@Model.CompletedCount</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <small class="text-muted d-block">💰 Total Terkumpul</small>
+                    <h5 class="fw-bold mb-0">Rp @Model.TotalSaved.ToString("N0")</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body">
+                    <small class="text-muted d-block">🎯 Total Target</small>
+                    <h5 class="fw-bold mb-0">Rp @Model.TotalTarget.ToString("N0")</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GOAL AKTIF -->
+    <h4 class="mb-3">🎯 Goal Aktif</h4>
+
+    @if (activeGoals.Any())
+    {
+        <div class="row">
+            @foreach (var item in activeGoals)
+            {
+                var progress = item.TargetAmount == 0 ? 0 :
+                Math.Min((item.CurrentAmount / item.TargetAmount) * 100, 100);
+
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body">
+
+                            @{
+                                string badgeText = "";
+                                string badgeClass = "";
+
+                                if (item.TargetDate.HasValue)
+                                {
+                                    var daysLeft = (item.TargetDate.Value.Date - today).Days;
+
+                                    if (daysLeft < 0)
+                                    {
+                                        badgeText = "Terlambat";
+                                        badgeClass = "bg-danger";
+                                    }
+                                    else if (daysLeft <= 7)
+                                    {
+                                        badgeText = "Mendekati Deadline";
+                                        badgeClass = "bg-warning text-dark";
+                                    }
+                                    else
+                                    {
+                                        badgeText = "Aman";
+                                        badgeClass = "bg-primary";
+                                    }
+                                }
+                            }
+
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="fw-bold mb-0">@item.Name</h5>
+
+                                @if (!string.IsNullOrEmpty(badgeText))
+                                {
+                                    <span class="badge @badgeClass">@badgeText</span>
+                                }
+                            </div>
+
+                            <p class="mb-3 text-muted">
+                                Target: Rp @item.TargetAmount.ToString("N0") <br />
+                                Terkumpul: Rp @item.CurrentAmount.ToString("N0")
+                                @if (item.TargetDate.HasValue)
+                                {
+                                    <br />
+                                    <span>📅 @item.TargetDate.Value.ToString("dd MMM yyyy")</span>
+                                }
+                            </p>
+
+                            <div class="progress mb-3" style="height: 22px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar"
+                                     style="width:@progress%">
+                                    @progress.ToString("0")%
+                                </div>
+                            </div>
+
+                            <form asp-action="AddAmount" method="post" class="mb-3">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <input type="number" name="amount" class="form-control mb-2 rounded-3"
+                                       placeholder="Nominal" required min="1" />
+                                <button class="btn btn-success btn-sm w-100 rounded-3">+ Nabung</button>
+                            </form>
+
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-info btn-sm text-white w-100 rounded-3">
+                                Detail
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light border rounded-4">
+            Belum ada goal aktif.
+        </div>
+    }
+
+    <!-- GOAL TERCAPAI -->
+    <h4 class="mt-5 mb-3">🏆 Goal Tercapai</h4>
+
+    @if (completedGoals.Any())
+    {
+        <div class="row">
+            @foreach (var item in completedGoals)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-success rounded-4 h-100">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="fw-bold mb-0">@item.Name</h5>
+                                <span class="badge bg-success">Tercapai</span>
+                            </div>
+
+                            <p class="mb-3 text-muted">
+                                Target: Rp @item.TargetAmount.ToString("N0") <br />
+                                Terkumpul: Rp @item.CurrentAmount.ToString("N0")
+                            </p>
+
+                            <div class="progress mb-3" style="height: 22px;">
+                                <div class="progress-bar bg-success"
+                                     role="progressbar"
+                                     style="width:100%">
+                                    100%
+                                </div>
+                            </div>
+
+                            <p class="text-success small mb-3">
+                                🎉 Target ini sudah berhasil dicapai.
+                            </p>
+
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-outline-success btn-sm w-100 rounded-3">
+                                Detail
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light border rounded-4">
+            Belum ada goal yang tercapai.
+        </div>
+    }
+</div>

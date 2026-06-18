@@ -1,0 +1,60 @@
+﻿@model FinanceTracker.Models.Goal
+
+@{
+    ViewData["Title"] = "Edit Goal";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4 mx-auto" style="max-width: 600px;">
+        <div class="card-body p-4">
+            <h2 class="mb-3 fw-bold">✏️ Edit Goal</h2>
+
+            <div class="alert alert-light border rounded-3 mb-4">
+                <strong>Terkumpul saat ini:</strong> Rp @Model.CurrentAmount.ToString("N0")
+            </div>
+
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-semibold">Nama Goal</label>
+                    <input asp-for="Name" class="form-control rounded-3" placeholder="Contoh: Beli Laptop Baru" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TargetAmount" class="form-label fw-semibold">Target Amount</label>
+                    <input asp-for="TargetAmount" type="number" step="0.01" min="0.01"
+                           class="form-control rounded-3" placeholder="Masukkan target nominal" />
+                    <span asp-validation-for="TargetAmount" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="TargetDate" class="form-label fw-semibold">Target Date</label>
+                    <input asp-for="TargetDate" type="date" class="form-control rounded-3" />
+                    <span asp-validation-for="TargetDate" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-warning px-4 rounded-3">
+                        Simpan Perubahan
+                    </button>
+
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary px-4 rounded-3">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

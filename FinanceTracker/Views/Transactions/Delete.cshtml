@@ -1,0 +1,93 @@
+﻿@using System.Globalization
+@model FinanceTracker.Models.Transaction
+
+@{
+    ViewData["Title"] = "Hapus Transaksi";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold text-danger mb-0">Hapus Transaksi</h3>
+        <small class="text-muted">Tindakan ini tidak bisa dibatalkan</small>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm border-danger">
+        <div class="card-body">
+
+            <!-- WARNING -->
+            <div class="alert alert-danger">
+                ⚠️ Apakah kamu yakin ingin menghapus transaksi ini?
+            </div>
+
+            <div class="row g-3">
+
+                <!-- DATE -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Tanggal</label>
+                    <div class="fw-semibold">
+                        @Model.Date.ToString("dd MMMM yyyy")
+                    </div>
+                </div>
+
+                <!-- AMOUNT -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Jumlah</label>
+                    <div class="fw-bold">
+                        @if (Model.Category.Type == "Income")
+                        {
+                            <span class="text-success">
+                                + Rp @Model.Amount.ToString("N0", new CultureInfo("id-ID"))
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">
+                                - Rp @Model.Amount.ToString("N0", new CultureInfo("id-ID"))
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- CATEGORY -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Kategori</label>
+                    <div>
+                        <span class="badge bg-light text-dark border">
+                            @Model.Category.Name
+                        </span>
+                    </div>
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="col-md-12">
+                    <label class="text-muted small">Deskripsi</label>
+                    <div class="fw-semibold">
+                        @(!string.IsNullOrEmpty(Model.Description) ? Model.Description : "-")
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION -->
+            <div class="mt-4 d-flex justify-content-between">
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    ← Batal
+                </a>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger px-4">
+                        Hapus
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

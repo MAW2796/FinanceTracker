@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Home - MAWApps";
+}
+
+<div class="container mt-5">
+
+    <!-- HERO SECTION -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold">MAWApps – Smart Finance Tracker</h1>
+            <p class="lead">Kelola pemasukan & pengeluaran pribadi dengan mudah, aman, dan cepat.</p>
+            <div class="mt-4">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg me-3">Login</a>
+                <a href="https://wa.me/628123456789?text=Halo%20saya%20ingin%20tanya%20tentang%20MAWApps"
+                   target="_blank" class="btn btn-success btn-lg">Chat WhatsApp</a>
+            </div>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="~/images/Img_Home.png" class="img-fluid" asp-append-version="true" alt="Finance Illustration" />
+        </div>
+    </div>
+
+    <!-- FEATURES SECTION -->
+    <div class="row text-center mb-5">
+        <h2 class="mb-4">Fitur Utama</h2>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3>💰</h3>
+                    <h5 class="card-title">Transaksi</h5>
+                    <p class="card-text">Catat pemasukan & pengeluaran dengan mudah.</p>
+                    <p>@System.Globalization.CultureInfo.CurrentCulture.Name</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3>📊</h3>
+                    <h5 class="card-title">Dashboard</h5>
+                    <p class="card-text">Lihat grafik pemasukan vs pengeluaran Anda.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3>🗂️</h3>
+                    <h5 class="card-title">Kategori</h5>
+                    <p class="card-text">Kelola kategori untuk kontrol keuangan yang lebih baik.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h3>📲</h3>
+                    <h5 class="card-title">Support WA</h5>
+                    <p class="card-text">Hubungi admin langsung via WhatsApp untuk pertanyaan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOW IT WORKS SECTION -->
+    <div class="row mb-5">
+        <h2 class="text-center mb-4">Cara Mulai</h2>
+        <div class="col-md-4 text-center">
+            <h3>1️⃣ Chat WA</h3>
+            <p>Klik tombol Chat WhatsApp untuk info & pembayaran.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <h3>2️⃣ Admin Buat Akun</h3>
+            <p>Admin akan membuat akun dan mengirim akses login.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <h3>3️⃣ Login & Catat</h3>
+            <p>Login ke dashboard dan mulai catat transaksi keuangan Anda.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- FLOATING WHATSAPP BUTTON -->
+<a href="https://wa.me/628123456789?text=Halo%20saya%20ingin%20tanya%20tentang%20MAWApps"
+   target="_blank"
+   class="btn btn-success btn-lg rounded-circle position-fixed"
+   style="bottom:20px; right:20px; z-index:1000;">
+    💬
+</a>

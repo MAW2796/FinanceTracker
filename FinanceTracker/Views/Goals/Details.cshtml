@@ -1,0 +1,237 @@
+﻿@model FinanceTracker.Models.ViewModels.GoalDetailsViewModel
+
+
+@{
+    ViewData["Title"] = "Detail Goal";
+
+    var goal = Model.Goal;
+
+    var progress = goal.TargetAmount == 0 ? 0 :
+        Math.Min((goal.CurrentAmount / goal.TargetAmount) * 100, 100);
+
+    var isCompleted = goal.CurrentAmount >= goal.TargetAmount;
+    var remaining = Math.Max(goal.TargetAmount - goal.CurrentAmount, 0);
+
+    DateTime today = DateTime.Today;
+
+    string deadlineText = "";
+    string deadlineClass = "";
+
+    if (!isCompleted && goal.TargetDate.HasValue)
+    {
+        var daysLeft = (goal.TargetDate.Value.Date - today).Days;
+
+        if (daysLeft < 0)
+        {
+            deadlineText = "Terlambat";
+            deadlineClass = "bg-danger";
+        }
+        else if (daysLeft <= 7)
+        {
+            deadlineText = "Mendekati Deadline";
+            deadlineClass = "bg-warning text-dark";
+        }
+        else
+        {
+            deadlineText = "Aman";
+            deadlineClass = "bg-primary";
+        }
+    }
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 fw-bold">🎯 Detail Goal</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success rounded-4">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger rounded-4">@TempData["Error"]</div>
+    }
+
+    <!-- CARD DETAIL GOAL -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-bold mb-0">@goal.Name</h3>
+
+                <div class="d-flex gap-2">
+                    @if (isCompleted)
+                    {
+                        <span class="badge bg-success fs-6">Tercapai</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary fs-6">Aktif</span>
+
+                        @if (!string.IsNullOrEmpty(deadlineText))
+                        {
+                            <span class="badge @deadlineClass fs-6">@deadlineText</span>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4 mb-3">
+                    <div class="p-3 bg-light rounded-4 border">
+                        <small class="text-muted d-block">Target</small>
+                        <strong>Rp @goal.TargetAmount.ToString("N0")</strong>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="p-3 bg-light rounded-4 border">
+                        <small class="text-muted d-block">Terkumpul</small>
+                        <strong>Rp @goal.CurrentAmount.ToString("N0")</strong>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="p-3 bg-light rounded-4 border">
+                        <small class="text-muted d-block">Sisa</small>
+                        <strong>Rp @remaining.ToString("N0")</strong>
+                    </div>
+                </div>
+            </div>
+
+            @if (goal.TargetDate.HasValue)
+            {
+            var daysLeft = (goal.TargetDate.Value.Date - today).Days;
+
+            <p class="text-muted mb-3">
+                📅 Target Date: @goal.TargetDate.Value.ToString("dd MMM yyyy")
+                <br />
+
+                @if (isCompleted)
+                {
+                    <span class="text-success">Goal sudah tercapai.</span>
+                }
+                else if (daysLeft < 0)
+                {
+                    <span class="text-danger">
+                        Terlambat @Math.Abs(daysLeft) hari
+                    </span>
+                }
+                else if (daysLeft == 0)
+                {
+                    <span class="text-warning fw-semibold">Deadline hari ini</span>
+                }
+                else
+                {
+                    <span class="text-primary">
+                        Sisa @daysLeft hari lagi
+                    </span>
+                }
+            </p>
+            }
+
+            <div class="progress mb-3" style="height: 24px;">
+                <div class="progress-bar @(isCompleted ? "bg-success" : "progress-bar-striped progress-bar-animated")"
+                     role="progressbar"
+                     style="width:@progress%">
+                    @progress.ToString("0")%
+                </div>
+            </div>
+
+            @if (isCompleted)
+            {
+                <div class="alert alert-success rounded-4 mb-4">
+                    🎉 Selamat! Goal ini sudah berhasil dicapai.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-light border rounded-4 mb-4">
+                    Tetap konsisten. Sedikit demi sedikit juga tetap maju.
+                </div>
+            }
+
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-action="Edit" asp-route-id="@goal.Id" class="btn btn-warning rounded-3">
+                    Edit Goal
+                </a>
+
+                <a asp-action="Index" class="btn btn-secondary rounded-3">
+                    Kembali
+                </a>
+
+                <form asp-action="Delete" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@goal.Id" />
+                    <button type="submit" class="btn btn-danger rounded-3"
+                            onclick="return confirm('Yakin ingin menghapus goal ini?')">
+                        Hapus Goal
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIWAYAT NABUNG -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h4 class="fw-bold mb-3">💰 Riwayat Nabung</h4>
+
+            @if (Model.Contributions.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Tanggal</th>
+                                <th>Jam</th>
+                                <th>Nominal</th>
+                                <th class="text-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int no = 1;
+                            }
+                            @foreach (var item in Model.Contributions)
+                            {
+                                <tr>
+                                    <td>@no</td>
+                                    <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                                    <td>@item.CreatedAt.ToString("HH:mm")</td>
+                                    <td class="fw-semibold text-success">
+                                        Rp @item.Amount.ToString("N0")
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-action="DeleteContribution" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger rounded-3"
+                                                    onclick="return confirm('Yakin ingin menghapus riwayat nabung ini?')">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                no++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3 text-muted small">
+                    Total transaksi nabung: <strong>@Model.Contributions.Count</strong>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-light border rounded-4 mb-0">
+                    Belum ada riwayat nabung untuk goal ini.
+                </div>
+            }
+        </div>
+    </div>
+</div>

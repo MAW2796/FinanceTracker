@@ -1,0 +1,87 @@
+﻿@model FinanceTracker.Models.User
+
+@{
+    ViewData["Title"] = "Tambah User";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Tambah User</h3>
+        <small class="text-muted">Buat akun baru (admin)</small>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+                <div class="row g-3">
+
+                    <!-- NAME -->
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label fw-semibold"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Nama user" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <!-- EMAIL -->
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label fw-semibold"></label>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="email@example.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password" class="form-control" type="password" placeholder="••••••••" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <!-- ROLE -->
+                    <div class="col-md-6">
+                        <label asp-for="Role" class="form-label fw-semibold"></label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger small"></span>
+                    </div>
+
+                    <!-- CREATED DATE -->
+                    <div class="col-md-6">
+                        <label asp-for="CreatedDate" class="form-label fw-semibold"></label>
+                        <input asp-for="CreatedDate" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="CreatedDate" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <!-- ACTION -->
+                <div class="mt-4 d-flex justify-content-between">
+
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        ← Kembali
+                    </a>
+
+                    <button type="submit" class="btn btn-primary px-4">
+                        Simpan
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

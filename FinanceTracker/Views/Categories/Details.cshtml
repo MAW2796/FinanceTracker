@@ -1,0 +1,67 @@
+﻿@model FinanceTracker.Models.Category
+
+@{
+    ViewData["Title"] = "Detail Kategori";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Detail Kategori</h3>
+        <small class="text-muted">Informasi kategori transaksi</small>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- NAME -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Nama</label>
+                    <div class="fw-semibold">
+                        @Model.Name
+                    </div>
+                </div>
+
+                <!-- TYPE -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Tipe</label>
+                    <div>
+                        @if (Model.Type == "Income")
+                        {
+                            <span class="badge bg-success-subtle text-success border">
+                                Income
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger-subtle text-danger border">
+                                Expense
+                            </span>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION -->
+            <div class="mt-4 d-flex justify-content-between">
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    ← Kembali
+                </a>
+
+                <a asp-action="Edit" asp-route-id="@Model.Id"
+                   class="btn btn-warning">
+                    Edit
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

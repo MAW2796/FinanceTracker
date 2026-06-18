@@ -1,0 +1,90 @@
+﻿@model FinanceTracker.Models.User
+
+@{
+    ViewData["Title"] = "Hapus User";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold text-danger mb-0">Hapus User</h3>
+        <small class="text-muted">Tindakan ini tidak bisa dibatalkan</small>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm border-danger">
+        <div class="card-body">
+
+            <!-- WARNING -->
+            <div class="alert alert-danger">
+                ⚠️ Apakah kamu yakin ingin menghapus user ini?
+            </div>
+
+            <div class="row g-3">
+
+                <!-- NAME -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Nama</label>
+                    <div class="fw-semibold">
+                        @Model.Name
+                    </div>
+                </div>
+
+                <!-- EMAIL -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Email</label>
+                    <div>
+                        @Model.Email
+                    </div>
+                </div>
+
+                <!-- ROLE -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Role</label>
+                    <div>
+                        @if (Model.Role == "Admin")
+                        {
+                            <span class="badge bg-primary-subtle text-primary border">
+                                Admin
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                                User
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- CREATED -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Tanggal Dibuat</label>
+                    <div>
+                        @Model.CreatedDate.ToString("dd MMM yyyy HH:mm")
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION -->
+            <div class="mt-4 d-flex justify-content-between">
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    ← Batal
+                </a>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger px-4">
+                        Hapus
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

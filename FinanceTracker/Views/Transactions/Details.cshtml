@@ -1,0 +1,84 @@
+﻿@using System.Globalization
+@model FinanceTracker.Models.Transaction
+
+@{
+    ViewData["Title"] = "Detail Transaksi";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Detail Transaksi</h3>
+        <small class="text-muted">Informasi lengkap transaksi</small>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- DATE -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Tanggal</label>
+                    <div class="fw-semibold">
+                        @Model.Date.ToString("dd MMMM yyyy")
+                    </div>
+                </div>
+
+                <!-- AMOUNT -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Jumlah</label>
+                    <div class="fw-bold">
+                        @if (Model.Category.Type == "Income")
+                        {
+                            <span class="text-success">
+                                + Rp @Model.Amount.ToString("N0", new CultureInfo("id-ID"))
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">
+                                - Rp @Model.Amount.ToString("N0", new CultureInfo("id-ID"))
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- CATEGORY -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Kategori</label>
+                    <div>
+                        <span class="badge bg-light text-dark border">
+                            @Model.Category.Name
+                        </span>
+                    </div>
+                </div>
+
+                <!-- DESCRIPTION -->
+                <div class="col-md-12">
+                    <label class="text-muted small">Deskripsi</label>
+                    <div class="fw-semibold">
+                        @(!string.IsNullOrEmpty(Model.Description) ? Model.Description : "-")
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION -->
+            <div class="mt-4 d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    ← Kembali
+                </a>
+
+                <a asp-action="Edit" asp-route-id="@Model.Id"
+                   class="btn btn-warning">
+                    Edit
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

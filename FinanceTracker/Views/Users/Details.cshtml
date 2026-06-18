@@ -1,0 +1,83 @@
+﻿@model FinanceTracker.Models.User
+
+@{
+    ViewData["Title"] = "Detail User";
+}
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Detail User</h3>
+        <small class="text-muted">Informasi lengkap pengguna</small>
+    </div>
+
+    <!-- CARD -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- NAME -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Nama</label>
+                    <div class="fw-semibold">
+                        @Model.Name
+                    </div>
+                </div>
+
+                <!-- EMAIL -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Email</label>
+                    <div>
+                        @Model.Email
+                    </div>
+                </div>
+
+                <!-- ROLE -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Role</label>
+                    <div>
+                        @if (Model.Role == "Admin")
+                        {
+                            <span class="badge bg-primary-subtle text-primary border">
+                                Admin
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                                User
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- CREATED -->
+                <div class="col-md-6">
+                    <label class="text-muted small">Tanggal Dibuat</label>
+                    <div>
+                        @Model.CreatedDate.ToString("dd MMM yyyy HH:mm")
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION -->
+            <div class="mt-4 d-flex justify-content-between">
+
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    ← Kembali
+                </a>
+
+                <a asp-action="Edit" asp-route-id="@Model.Id"
+                   class="btn btn-warning">
+                    Edit
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
