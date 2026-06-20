@@ -18,12 +18,6 @@ namespace FinanceTracker.Controllers
             _context = context;
         }
 
-        private int? GetUserId()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-            return userId != null ? int.Parse(userId) : null;
-        }
-
         // 🔥 INDEX
         public async Task<IActionResult> Index()
         {

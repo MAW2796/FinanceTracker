@@ -9,19 +9,13 @@ using FinanceTracker.Models.ViewModels;
 
 namespace FinanceTracker.Controllers
 {
-    public class GoalsController : Controller
+    public class GoalsController : BaseController
     {
         private readonly AppDbContext _context;
 
         public GoalsController(AppDbContext context)
         {
             _context = context;
-        }
-
-        private int? GetUserId()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-            return userId != null ? int.Parse(userId) : null;
         }
 
         public async Task<IActionResult> Index()

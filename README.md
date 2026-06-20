@@ -1,7 +1,6 @@
 # FinanceTracker (MAWApps)
 
-Personal finance tracking app yang dibangun sebagai project belajar teknologi **.NET** — mulai dari web, nantinya mobile, dan service API. Tujuannya untuk mencoba berbagai aspek development satu per satu sambil terus belajar.
-
+Personal finance tracking app yang dibangun sebagai project kebutuhan pribadi **.NET** — mulai dari web, nantinya mobile, dan service API. 
 ## Tentang Project
 
 Project ini dikembangkan secara bertahap menggunakan pendekatan **Mini Agile / Iterative Development**, karena sifatnya personal dan dibangun incremental. Setiap fitur melewati alur:
@@ -56,17 +55,28 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 - Dashboard Menu (Pengunjung / User / Admin)
 - Fitur Planning (create, edit, delete, sinkron otomatis dengan Transactions)
 - Kategori dibatasi hanya tipe expense untuk planning
+- Dashboard user dengan data dinamis (summary cards, filter bulan, tabel transaksi terbaru, bar chart 3 bulan terakhir, pie chart distribusi pengeluaran per kategori — semua dari database, tidak ada lagi hardcode)
 
 ### Sedang Dikerjakan 🔄
 
 - Security Testing — coba pakai Burp Suite, test input aneh, cek endpoint tanpa login
-- Rapihkan UI fitur-fitur yang sudah jalan (separator, desain, dll)
-- Dashboard user dengan data dinamis (tidak hardcode)
+- AI Chat Assistant (Groq) untuk diskusi data transaksi & planning
 
 ### Rencana Selanjutnya
 
 - Ekspansi ke platform Mobile
 - Ekspansi ke Service API
+
+## Perubahan Terbaru
+
+- Dashboard (`TransactionsController.Dashboard`) diubah dari hardcode jadi full dynamic: query Saldo/Pemasukan/Pengeluaran per bulan terpilih, distribusi pengeluaran per kategori (pie chart), tren 3 bulan terakhir (bar chart), dan transaksi terbaru — semua dari `AppDbContext`.
+- Filter bulan di Dashboard pakai `<input type="month">`, redirect dengan query parameter `month`, parsing pakai `DateTime.TryParse` (bukan `Parse`) supaya input tidak valid tidak bikin halaman crash.
+- Tambah loading indicator sederhana (disable input + teks "Memuat...") saat filter bulan diganti.
+- Refactor `BaseController` agar berisi helper bersama `GetUserId()` untuk otentikasi session.
+- Menghapus duplikasi metode `GetUserId()` di controller turunannya (`Categories`, `Goals`, `MonthlyPlannings`, `Transactions`).
+- Memperbaiki `HomeController` supaya membaca role dari session key yang benar: `UserRole`.
+- Memperbaiki nama file yang salah dari `BaseController .cs` menjadi `BaseController.cs`.
+- Validasi berhasil dengan `dotnet build FinanceTracker.sln` tanpa error compile.
 
 ## Struktur Project
 

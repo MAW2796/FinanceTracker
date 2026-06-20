@@ -18,12 +18,6 @@ namespace FinanceTracker.Controllers
             _context = context;
         }
 
-        private int? GetUserId()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-            return userId != null ? int.Parse(userId) : null;
-        }
-
         public async Task<IActionResult> Index(string search, string month, int page = 1)
         {
             var uid = GetUserId();
@@ -44,9 +38,9 @@ namespace FinanceTracker.Controllers
 
             DateTime selectedMonth;
 
-            if (!string.IsNullOrEmpty(month))
+            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month, out var parsedMonth))
             {
-                selectedMonth = DateTime.Parse(month);
+                selectedMonth = parsedMonth;
             }
             else
             {
@@ -291,17 +285,80 @@ namespace FinanceTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard(string month)
         {
             var uid = GetUserId();
             if (uid == null)
                 return RedirectToAction("Login", "Account");
 
-            ViewBag.TotalIncome = 5000000;
-            ViewBag.TotalExpense = 3200000;
-            ViewBag.Balance = 1800000;
+            DateTime selectedMonth;
 
-            return View();
+            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month, out var parsedMonth))
+            {
+                selectedMonth = parsedMonth;
+            }
+            else
+            {
+                selectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                month = selectedMonth.ToString("yyyy-MM");
+            }
+
+            var monthlyTransactions = await _context.Transactions
+                .Include(t => t.Category)
+                .Where(t => t.UserId == uid &&
+                            t.Date.Month == selectedMonth.Month &&
+                            t.Date.Year == selectedMonth.Year)
+                .ToListAsync();
+
+            ViewBag.TotalIncome = monthlyTransactions
+                .Where(t => t.Category.Type == "Income")
+                .Sum(t => t.Amount);
+
+            ViewBag.TotalExpense = monthlyTransactions
+                .Where(t => t.Category.Type == "Expense")
+                .Sum(t => t.Amount);
+
+            ViewBag.Balance = ViewBag.TotalIncome - ViewBag.TotalExpense;
+
+            var expenseByCategory = monthlyTransactions
+                .Where(t => t.Category.Type == "Expense")
+                .GroupBy(t => t.Category.Name)
+                .Select(g => new {
+                    Category = g.Key,
+                    Total = g.Sum(t => t.Amount)
+                })
+                .ToList();
+
+            ViewBag.ExpenseCategoryLabels = expenseByCategory.Select(x => x.Category).ToList();
+            ViewBag.ExpenseCategoryValues = expenseByCategory.Select(x => x.Total).ToList();
+
+            var barLabels = new List<string>();
+            var barIncomeData = new List<decimal>();
+            var barExpenseData = new List<decimal>();
+
+            for (int i = 2; i >= 0; i--)
+            {
+                var targetMonth = selectedMonth.AddMonths(-i);
+
+                var monthData = await _context.Transactions
+                    .Include(t => t.Category)
+                    .Where(t => t.UserId == uid &&
+                                t.Date.Month == targetMonth.Month &&
+                                t.Date.Year == targetMonth.Year)
+                    .ToListAsync();
+
+                barLabels.Add(targetMonth.ToString("MMM"));
+                barIncomeData.Add(monthData.Where(t => t.Category.Type == "Income").Sum(t => t.Amount));
+                barExpenseData.Add(monthData.Where(t => t.Category.Type == "Expense").Sum(t => t.Amount));
+            }
+
+            ViewBag.BarLabels = barLabels;
+            ViewBag.BarIncomeData = barIncomeData;
+            ViewBag.BarExpenseData = barExpenseData;
+
+            ViewBag.Month = month;
+
+            return View(monthlyTransactions);
         }
     }
 }

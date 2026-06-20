@@ -5,11 +5,15 @@ namespace FinanceTracker.Controllers
 {
     public class BaseController : Controller
     {
-        public override void OnActionExecuting(ActionExecutingContext context)
+        protected int? GetUserId()
         {
             var userId = HttpContext.Session.GetString("UserId");
+            return userId != null && int.TryParse(userId, out var id) ? id : null;
+        }
 
-            if (string.IsNullOrEmpty(userId))
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (GetUserId() == null)
             {
                 context.Result = RedirectToAction("Login", "Account");
             }

@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FinanceTracker.Data;
 using FinanceTracker.Models;
-using FinanceTracker.Controllers;
 
-namespace FinanceTracker.Views
+namespace FinanceTracker.Controllers
 {
     public class UsersController : BaseController
     {

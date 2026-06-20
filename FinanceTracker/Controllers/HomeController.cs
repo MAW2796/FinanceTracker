@@ -22,7 +22,7 @@ namespace FinanceTracker.Controllers
         public IActionResult Index()
         {
             var userId = HttpContext.Session.GetString("UserId");
-            var role = HttpContext.Session.GetString("Role");
+            var role = HttpContext.Session.GetString("UserRole");
 
             if (userId == null)
             {

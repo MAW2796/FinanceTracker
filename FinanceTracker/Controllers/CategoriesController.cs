@@ -8,20 +8,13 @@ using FinanceTracker.Models;
 
 namespace FinanceTracker.Controllers
 {
-    public class CategoriesController : Controller
+    public class CategoriesController : BaseController
     {
         private readonly AppDbContext _context;
 
         public CategoriesController(AppDbContext context)
         {
             _context = context;
-        }
-
-        // 🔐 HELPER (AMBIL USER ID)
-        private int? GetUserId()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-            return userId != null ? int.Parse(userId) : null;
         }
 
         public async Task<IActionResult> Index(string search, string type, int page = 1)
