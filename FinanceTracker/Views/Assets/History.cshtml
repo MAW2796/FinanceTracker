@@ -1,0 +1,70 @@
+﻿@using System.Globalization
+@model List<FinanceTracker.Models.AssetValueHistory>
+
+@{
+    var asset = ViewBag.Asset as FinanceTracker.Models.Asset;
+    ViewData["Title"] = "Riwayat Nilai - " + asset?.Name;
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Riwayat Nilai - @asset?.Name</h3>
+        <small class="text-muted">Nilai saat ini: Rp @asset?.CurrentValue.ToString("N0", new CultureInfo("id-ID"))</small>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Tanggal</th>
+                <th>Nilai</th>
+                <th>Perubahan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                for (int i = 0; i < Model.Count; i++)
+                {
+                    var current = Model[i];
+                    // list sudah diurutkan terbaru -> terlama, jadi "sebelumnya" ada di index berikutnya
+                    decimal? previousValue = (i + 1 < Model.Count) ? Model[i + 1].Value : (decimal?)null;
+                    decimal? diff = previousValue.HasValue ? current.Value - previousValue.Value : null;
+
+                    <tr>
+                        <td>@current.RecordedDate.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>Rp @current.Value.ToString("N0", new CultureInfo("id-ID"))</td>
+                        <td>
+                            @if (diff.HasValue)
+                            {
+                                if (diff.Value > 0)
+                                {
+                                    <span class="text-success">▲ Rp @diff.Value.ToString("N0", new CultureInfo("id-ID"))</span>
+                                }
+                                else if (diff.Value < 0)
+                                {
+                                    <span class="text-danger">▼ Rp @Math.Abs(diff.Value).ToString("N0", new CultureInfo("id-ID"))</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Tidak berubah</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Nilai awal</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="3" class="text-center">Belum ada riwayat</td></tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">← Kembali</a>
+
+</div>

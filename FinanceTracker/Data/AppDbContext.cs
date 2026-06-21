@@ -22,5 +22,7 @@ namespace FinanceTracker.Data
         public DbSet<Installment> Installments { get; set; }
         public DbSet<DebtReceivable> DebtReceivables { get; set; }
         public DbSet<DebtPayment> DebtPayments { get; set; }
+        public DbSet<Asset> Assets { get; set; }
+        public DbSet<AssetValueHistory> AssetValueHistories { get; set; }
     }
 }
