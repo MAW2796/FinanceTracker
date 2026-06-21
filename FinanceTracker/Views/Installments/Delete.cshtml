@@ -1,0 +1,44 @@
+﻿@using System.Globalization
+@model FinanceTracker.Models.Installment
+
+@{
+    ViewData["Title"] = "Hapus Cicilan";
+}
+
+<div class="container mt-4">
+
+    <h3 class="fw-bold text-danger mb-4">Hapus Cicilan</h3>
+
+    <div class="alert alert-warning">
+        Planning yang sudah ter-generate dari cicilan ini <strong>tidak akan ikut terhapus</strong> (riwayat tetap aman), hanya keterkaitannya ke cicilan ini yang dilepas.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Nama</dt>
+                <dd class="col-sm-8">@Model.Name</dd>
+
+                <dt class="col-sm-4">Kategori</dt>
+                <dd class="col-sm-8">@Model.Category?.Name</dd>
+
+                <dt class="col-sm-4">Plafon</dt>
+                <dd class="col-sm-8">Rp @Model.PlafondAmount.ToString("N0", new CultureInfo("id-ID"))</dd>
+
+                <dt class="col-sm-4">Cicilan/Bulan</dt>
+                <dd class="col-sm-8">Rp @Model.MonthlyAmount.ToString("N0", new CultureInfo("id-ID"))</dd>
+
+                <dt class="col-sm-4">Tenor</dt>
+                <dd class="col-sm-8">@Model.TenorMonths bulan</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4 d-flex justify-content-between">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <a asp-action="Index" class="btn btn-outline-secondary">← Kembali</a>
+        <button type="submit" class="btn btn-danger px-4">Ya, Hapus</button>
+    </form>
+
+</div>

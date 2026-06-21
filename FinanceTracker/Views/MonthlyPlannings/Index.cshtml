@@ -36,7 +36,13 @@
             foreach (var item in upcoming)
             {
                 <tr>
-                    <td>@item.Title</td>
+                    <td>
+                        @item.Title
+                        @if (item.InstallmentId != null)
+                        {
+                            <span class="badge bg-info text-dark ms-1">Cicilan</span>
+                        }
+                    </td>
                     <td>Rp @item.Amount.ToString("N0", new CultureInfo("id-ID"))</td>
                     <td>@item.Category?.Name</td>
                     <td>@item.DueDate.ToString("dd MMM yyyy")</td>
@@ -88,7 +94,13 @@
             foreach (var item in overdue)
             {
                 <tr class="table-danger">
-                    <td>@item.Title</td>
+                    <td>
+                        @item.Title
+                        @if (item.InstallmentId != null)
+                        {
+                            <span class="badge bg-info text-dark ms-1">Cicilan</span>
+                        }
+                    </td>
                     <td>Rp @item.Amount.ToString("N0", new CultureInfo("id-ID"))</td>
                     <td>@item.Category?.Name</td>
                     <td>@item.DueDate.ToString("dd MMM yyyy")</td>

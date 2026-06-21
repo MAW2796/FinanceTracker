@@ -1,0 +1,105 @@
+﻿@using System.Globalization
+@model FinanceTracker.Models.Installment
+
+@{
+    ViewData["Title"] = "Tambah Cicilan";
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Tambah Cicilan</h3>
+        <small class="text-muted">Cicilan akan otomatis muncul di Planning saat mendekati 15 hari jatuh tempo</small>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="row g-3">
+
+                    <!-- NAME -->
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label fw-semibold">Nama Cicilan</label>
+                        <input asp-for="Name" class="form-control" placeholder="Contoh: Cicilan Motor" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <!-- CATEGORY -->
+                    <div class="col-md-6">
+                        <label asp-for="CategoryId" class="form-label fw-semibold">Kategori</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                            <option value="">-- Pilih Kategori --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- PLAFON -->
+                    <div class="col-md-6">
+                        <label asp-for="PlafondAmount" class="form-label fw-semibold">Plafon (Total Pinjaman)</label>
+                        <input type="text" id="plafondInput" name="PlafondAmount" class="form-control" placeholder="Contoh: 24.000.000" />
+                        <span asp-validation-for="PlafondAmount" class="text-danger small"></span>
+                    </div>
+
+                    <!-- MONTHLY AMOUNT -->
+                    <div class="col-md-6">
+                        <label asp-for="MonthlyAmount" class="form-label fw-semibold">Cicilan per Bulan</label>
+                        <input type="text" id="monthlyInput" name="MonthlyAmount" class="form-control" placeholder="Contoh: 2.000.000" />
+                        <span asp-validation-for="MonthlyAmount" class="text-danger small"></span>
+                    </div>
+
+                    <!-- TENOR -->
+                    <div class="col-md-6">
+                        <label asp-for="TenorMonths" class="form-label fw-semibold">Tenor (bulan)</label>
+                        <input asp-for="TenorMonths" type="number" min="1" max="360" class="form-control" placeholder="Contoh: 12" />
+                        <span asp-validation-for="TenorMonths" class="text-danger small"></span>
+                    </div>
+
+                    <!-- START DATE -->
+                    <div class="col-md-6">
+                        <label asp-for="StartDate" class="form-label fw-semibold">Tanggal Cicilan Pertama</label>
+                        <input asp-for="StartDate" type="date" class="form-control" />
+                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">← Kembali</a>
+                    <button type="submit" class="btn btn-primary px-4">Simpan</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            function formatNumber(value) {
+                return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+            function removeFormat(value) {
+                return value.replace(/\./g, "");
+            }
+            function setupAmountInput(id) {
+                const input = document.getElementById(id);
+                if (!input) return;
+                input.addEventListener("input", function () {
+                    let value = this.value.replace(/\D/g, "");
+                    this.value = value ? formatNumber(value) : "";
+                });
+                input.closest("form").addEventListener("submit", function () {
+                    input.value = removeFormat(input.value);
+                });
+            }
+            setupAmountInput("plafondInput");
+            setupAmountInput("monthlyInput");
+        </script>
+
+        <partial name="_ValidationScriptsPartial" />
+    }
+
+</div>

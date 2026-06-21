@@ -35,5 +35,11 @@ namespace FinanceTracker.Models
         // 🔥 OPTIONAL (future scaling)
         public bool IsRecurring { get; set; } = false;
         public int? RecurringDay { get; set; }
+       
+        // 🔥 RELASI KE INSTALLMENT (kalau planning ini auto-generate dari cicilan)
+        public int? InstallmentId { get; set; }
+
+        [ForeignKey("InstallmentId")]
+        public Installment? Installment { get; set; }
     }
 }

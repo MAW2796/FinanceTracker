@@ -1,0 +1,73 @@
+﻿@using System.Globalization
+@model List<FinanceTracker.Models.Installment>
+
+@{
+    ViewData["Title"] = "Cicilan";
+    var progress = ViewBag.Progress as Dictionary<int?, dynamic>;
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">📦 Cicilan</h2>
+        <small class="text-muted">Otomatis muncul di Planning saat mendekati 15 hari jatuh tempo</small>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary mt-3 mt-md-0">
+        + Tambah Cicilan
+    </a>
+</div>
+
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Nama</th>
+            <th>Kategori</th>
+            <th>Plafon</th>
+            <th>Cicilan/Bulan</th>
+            <th>Progress</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                var hasProgress = progress != null && progress.ContainsKey(item.Id);
+                var generatedCount = hasProgress ? (int)progress[item.Id].Count : 0;
+                var paidCount = hasProgress ? (int)progress[item.Id].PaidCount : 0;
+
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Category?.Name</td>
+                    <td>Rp @item.PlafondAmount.ToString("N0", new CultureInfo("id-ID"))</td>
+                    <td>Rp @item.MonthlyAmount.ToString("N0", new CultureInfo("id-ID"))</td>
+                    <td>
+                        @paidCount / @item.TenorMonths lunas
+                        <div class="progress mt-1" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: @((item.TenorMonths > 0 ? (paidCount * 100 / item.TenorMonths) : 0))%"></div>
+                        </div>
+                    </td>
+                    <td>
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-primary">Berjalan</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Lunas</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Hapus</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="7" class="text-center">Belum ada cicilan</td></tr>
+        }
+    </tbody>
+</table>

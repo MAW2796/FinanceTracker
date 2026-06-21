@@ -1,6 +1,7 @@
 # FinanceTracker (MAWApps)
 
-Personal finance tracking app yang dibangun sebagai project kebutuhan pribadi **.NET** — mulai dari web, nantinya mobile, dan service API. 
+Personal finance tracking app yang dibangun sebagai project belajar teknologi **.NET** — mulai dari web, nantinya mobile, dan service API. Tujuannya untuk mencoba berbagai aspek development satu per satu sambil terus belajar.
+
 ## Tentang Project
 
 Project ini dikembangkan secara bertahap menggunakan pendekatan **Mini Agile / Iterative Development**, karena sifatnya personal dan dibangun incremental. Setiap fitur melewati alur:
@@ -57,11 +58,14 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 - Kategori dibatasi hanya tipe expense untuk planning
 - Dashboard user dengan data dinamis (summary cards, filter bulan, tabel transaksi terbaru, bar chart 3 bulan terakhir, pie chart distribusi pengeluaran per kategori — semua dari database, tidak ada lagi hardcode)
 - AI Chat Assistant (Groq, model `llama-3.3-70b-versatile`) untuk diskusi & saran keuangan, dengan context data transaksi (ringkasan 12 bulan + detail 1 bulan terakhir) dan planning aktif milik user
+- Fitur Cicilan (`Installment`): plafon, cicilan per bulan, tenor, dan tanggal mulai. Otomatis generate entry di Monthly Planning saat mendekati 15 hari jatuh tempo (dengan catch-up kalau aplikasi tidak dibuka beberapa bulan), progress lunas/berjalan per cicilan, terhubung ke Planning lewat `InstallmentId`
 
 ### Sedang Dikerjakan 🔄
 
 - Security Testing — coba pakai Burp Suite, test input aneh, cek endpoint tanpa login
-- AI Chat Assistant (Groq) untuk diskusi data transaksi & planning
+- Rapihkan UI fitur-fitur yang sudah jalan (separator, desain, dll)
+- Utang Piutang (reminder jatuh tempo, bisa bayar sebagian/partial payment, halaman terpisah dari Planning)
+- Aset (daftar aset + riwayat perubahan nilai)
 
 ### Rencana Selanjutnya
 
@@ -70,6 +74,7 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 
 ## Perubahan Terbaru
 
+- Tambah fitur Cicilan (`InstallmentsController` + `Installment` model). Generator (`GenerateInstallmentPlannings`) dipanggil tiap kali halaman Monthly Planning dibuka: cek semua cicilan aktif milik user, generate row `MonthlyPlanning` baru (dengan `InstallmentId` terisi) untuk periode yang jatuh temponya sudah dalam 15 hari ke depan atau lewat, pakai while-loop supaya catch-up kalau ada periode yang terlewat. Cicilan otomatis `IsActive = false` setelah semua periode (`TenorMonths`) ke-generate. Delete cicilan tidak ikut menghapus Planning yang sudah ter-generate (riwayat tetap aman), hanya melepas relasinya (`InstallmentId = null`).
 - Redesign UI halaman AI Chat Assistant: tema "ledger/struk keuangan" (garis halus ala kertas pembukuan, tabel balasan AI pakai font monospace, efek garis sobekan di atas input), quick-prompt chips, typing indicator, dan dukungan dark mode. CSS dipisah ke `wwwroot/css/aichat.css` (di-load lewat `@section Styles` baru di `_Layout.cshtml`), tidak dicampur ke `site.css` global.
 - Tambah fitur AI Chat Assistant (`AiChatController`) yang memanggil Groq API (`llama-3.3-70b-versatile`) lewat `IHttpClientFactory`, dengan context dibangun dari data transaksi & planning user (tidak pernah lintas user, selalu difilter `UserId`).
 - API key Groq disimpan via .NET User Secrets (`Groq:ApiKey`), tidak pernah masuk ke repo.
@@ -136,12 +141,16 @@ Untuk production nanti, secret sebaiknya dipindah ke environment variable atau s
    dotnet user-secrets init
    dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=...;Database=...;User Id=...;Password=...;TrustServerCertificate=True;"
    ```
-4. Jalankan migration lewat Package Manager Console:
+4. Setup Groq API key (gratis, daftar di [console.groq.com](https://console.groq.com)) untuk fitur AI Chat Assistant:
+   ```bash
+   dotnet user-secrets set "Groq:ApiKey" "isi-api-key-groq-kamu"
+   ```
+5. Jalankan migration lewat Package Manager Console:
    ```
    Add-Migration InitialCreate
    Update-Database
    ```
-5. Run project (F5).
+6. Run project (F5).
 
 ### Menambahkan Fitur CRUD Baru (via Scaffold)
 

@@ -25,6 +25,8 @@ namespace FinanceTracker.Controllers
             if (uid == null)
                 return RedirectToAction("Login", "Account");
 
+            await GenerateInstallmentPlannings(uid.Value);
+
             var now = DateTime.Now;
 
             var data = await _context.MonthlyPlannings
@@ -259,6 +261,50 @@ namespace FinanceTracker.Controllers
             );
 
             return View(model);
+        }
+
+        private async Task GenerateInstallmentPlannings(int userId)
+        {
+            var today = DateTime.Now.Date;
+
+            var activeInstallments = await _context.Installments
+                .Where(i => i.UserId == userId && i.IsActive)
+                .ToListAsync();
+
+            foreach (var inst in activeInstallments)
+            {
+                var generatedCount = await _context.MonthlyPlannings
+                    .CountAsync(p => p.InstallmentId == inst.Id);
+
+                // catch-up: generate semua periode yang sudah mendekati/lewat jatuh tempo
+                while (generatedCount < inst.TenorMonths)
+                {
+                    var nextDueDate = inst.StartDate.AddMonths(generatedCount);
+
+                    if (nextDueDate > today.AddDays(15))
+                        break;
+
+                    var planning = new MonthlyPlanning
+                    {
+                        Title = $"{inst.Name} ({generatedCount + 1}/{inst.TenorMonths})",
+                        Amount = inst.MonthlyAmount,
+                        DueDate = nextDueDate,
+                        CategoryId = inst.CategoryId,
+                        UserId = inst.UserId,
+                        InstallmentId = inst.Id
+                    };
+
+                    _context.MonthlyPlannings.Add(planning);
+                    generatedCount++;
+                }
+
+                if (generatedCount >= inst.TenorMonths)
+                {
+                    inst.IsActive = false;
+                }
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }
