@@ -1,0 +1,121 @@
+﻿/* ===== WEALTH MODULES (Cicilan, Utang Piutang, Aset, Investasi) ===== */
+
+.wealth-page .page-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+}
+
+    .wealth-page .page-header h2 {
+        letter-spacing: -.01em;
+    }
+
+    .wealth-page .page-header small {
+        margin-top: .15rem;
+    }
+
+/* Card pembungkus tabel */
+.wealth-page .table-card {
+    background: #fff;
+    border: 1px solid #e8ebf0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(20, 30, 50, .04);
+    margin-bottom: 2rem;
+}
+
+    .wealth-page .table-card table {
+        margin-bottom: 0;
+    }
+
+    .wealth-page .table-card thead th {
+        border-bottom: 2px solid #e8ebf0;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #6b7280;
+        font-weight: 700;
+    }
+
+    .wealth-page .table-card tbody tr {
+        transition: background-color .12s ease;
+    }
+
+        .wealth-page .table-card tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+    .wealth-page .table-card td, .wealth-page .table-card th {
+        padding: .85rem .9rem;
+        vertical-align: middle;
+    }
+
+/* Badge lebih soft/pill */
+.wealth-page .badge {
+    font-weight: 600;
+    padding: .4em .75em;
+    border-radius: 999px;
+}
+
+/* Tombol aksi rapat tapi tidak dempet */
+.wealth-page .btn-sm {
+    border-radius: 8px;
+    margin: 0 2px 2px 0;
+}
+
+/* Progress bar cicilan */
+.wealth-page .progress {
+    border-radius: 999px;
+    background-color: #eef1f5;
+}
+
+.wealth-page .progress-bar {
+    border-radius: 999px;
+}
+
+/* Form card (Create page) */
+.wealth-page .card.shadow-sm {
+    border: 1px solid #e8ebf0;
+    border-radius: 14px;
+}
+
+/* Total summary di header (Aset/Investasi) */
+.wealth-page .summary-pill {
+    display: inline-block;
+    background: #f0f6ff;
+    color: #1b76d6;
+    font-weight: 600;
+    padding: .35rem .8rem;
+    border-radius: 999px;
+    font-size: .85rem;
+}
+
+/* Empty state */
+.wealth-page .table-card td.text-center {
+    padding: 2.5rem 1rem;
+    color: #9aa3af;
+}
+
+/* DARK MODE */
+body.dark-mode .wealth-page .table-card {
+    background: #1f1f1f;
+    border-color: #333;
+}
+
+    body.dark-mode .wealth-page .table-card thead th {
+        border-color: #3a3a3a;
+        color: #9aa3af;
+    }
+
+    body.dark-mode .wealth-page .table-card tbody tr:hover {
+        background-color: #262626;
+    }
+
+body.dark-mode .wealth-page .summary-pill {
+    background: #1e2a3a;
+    color: #5ba3f0;
+}
+
+body.dark-mode .wealth-page .card.shadow-sm {
+    border-color: #333;
+}

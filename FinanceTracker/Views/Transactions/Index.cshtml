@@ -137,9 +137,18 @@
                                 </td>
 
                                 <td>
-                                    <span class="badge bg-light text-dark border">
-                                        @item.Category.Name
-                                    </span>
+                                    @if (item.Category.Type == "Income")
+                                    {
+                                        <span class="badge bg-success-subtle text-success border">
+                                            @item.Category.Name
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border">
+                                            @item.Category.Name
+                                        </span>
+                                    }
                                 </td>
 
                                 <td>

@@ -64,6 +64,102 @@ namespace FinanceTracker.Controllers
 
             var sb = new StringBuilder();
 
+            // 4. Cicilan aktif
+            var activeInstallments = await _context.Installments
+                .Include(i => i.Category)
+                .Where(i => i.UserId == userId && i.IsActive)
+                .ToListAsync();
+
+            sb.AppendLine();
+            sb.AppendLine("=== CICILAN AKTIF ===");
+            if (!activeInstallments.Any())
+            {
+                sb.AppendLine("Tidak ada cicilan aktif.");
+            }
+            else
+            {
+                foreach (var inst in activeInstallments)
+                {
+                    var generatedCount = await _context.MonthlyPlannings.CountAsync(p => p.InstallmentId == inst.Id);
+                    sb.AppendLine($"- {inst.Name} | Cicilan ke-{generatedCount}/{inst.TenorMonths} | Rp{inst.MonthlyAmount:N0}/bulan | Plafon: Rp{inst.PlafondAmount:N0}");
+                }
+            }
+
+            // 5. Utang Piutang yang belum lunas
+            var debts = await _context.DebtReceivables
+                .Include(d => d.Payments)
+                .Where(d => d.UserId == userId)
+                .ToListAsync();
+
+            var unpaidDebts = debts
+                .Select(d => new { d.Type, d.PersonName, d.DueDate, Remaining = d.TotalAmount - d.Payments.Sum(p => p.Amount) })
+                .Where(d => d.Remaining > 0)
+                .ToList();
+
+            sb.AppendLine();
+            sb.AppendLine("=== UTANG PIUTANG BELUM LUNAS ===");
+            if (!unpaidDebts.Any())
+            {
+                sb.AppendLine("Tidak ada utang/piutang yang belum lunas.");
+            }
+            else
+            {
+                foreach (var d in unpaidDebts)
+                {
+                    sb.AppendLine($"- {d.Type} dengan {d.PersonName} | Sisa: Rp{d.Remaining:N0} | Jatuh tempo: {d.DueDate:yyyy-MM-dd}");
+                }
+            }
+
+            // 6. Aset
+            var assets = await _context.Assets
+                .Where(a => a.UserId == userId)
+                .ToListAsync();
+
+            sb.AppendLine();
+            sb.AppendLine("=== ASET ===");
+            if (!assets.Any())
+            {
+                sb.AppendLine("Tidak ada aset tercatat.");
+            }
+            else
+            {
+                foreach (var a in assets)
+                {
+                    sb.AppendLine($"- {a.Name} | Nilai: Rp{a.CurrentValue:N0}");
+                }
+                sb.AppendLine($"Total nilai aset: Rp{assets.Sum(a => a.CurrentValue):N0}");
+            }
+
+            // 7. Investasi
+            var investments = await _context.Investments
+                .Where(i => i.UserId == userId)
+                .ToListAsync();
+
+            sb.AppendLine();
+            sb.AppendLine("=== INVESTASI ===");
+            if (!investments.Any())
+            {
+                sb.AppendLine("Tidak ada investasi tercatat.");
+            }
+            else
+            {
+                decimal totalInvestValue = 0;
+                decimal totalInvestCost = 0;
+
+                foreach (var inv in investments)
+                {
+                    var currentValue = inv.TotalUnits * inv.CurrentPrice;
+                    var costValue = inv.TotalUnits * inv.AvgBuyPrice;
+                    var gainLoss = currentValue - costValue;
+                    totalInvestValue += currentValue;
+                    totalInvestCost += costValue;
+
+                    sb.AppendLine($"- {inv.Name} ({inv.Type}) | {inv.TotalUnits:0.######} {inv.UnitLabel} | Avg beli: Rp{inv.AvgBuyPrice:N0} | Harga sekarang: Rp{inv.CurrentPrice:N0} | Untung/Rugi: Rp{gainLoss:N0}");
+                }
+
+                sb.AppendLine($"Total nilai investasi: Rp{totalInvestValue:N0} | Total untung/rugi: Rp{(totalInvestValue - totalInvestCost):N0}");
+            }
+
             sb.AppendLine("=== RINGKASAN BULANAN (12 BULAN TERAKHIR) ===");
             if (!monthlySummary.Any())
             {

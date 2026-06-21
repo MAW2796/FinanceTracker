@@ -18,6 +18,23 @@ namespace FinanceTracker.Controllers
             _context = context;
         }
 
+        private SelectList GetGroupedCategorySelectList(int userId, int? selectedId = null)
+        {
+            var categories = _context.Categories
+                .Where(c => c.UserId == userId)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name,
+                    GroupName = c.Type == "Income" ? "Pemasukan" : "Pengeluaran"
+                })
+                .OrderBy(c => c.GroupName)
+                .ThenBy(c => c.Name)
+                .ToList();
+
+            return new SelectList(categories, "Id", "Name", selectedId, "GroupName");
+        }
+
         public async Task<IActionResult> Index(string search, string month, int page = 1)
         {
             var uid = GetUserId();
@@ -103,11 +120,7 @@ namespace FinanceTracker.Controllers
             if (uid == null)
                 return RedirectToAction("Login", "Account");
 
-            ViewData["CategoryId"] = new SelectList(
-                _context.Categories.Where(c => c.UserId == uid),
-                "Id",
-                "Name"
-            );
+            ViewData["CategoryId"] = GetGroupedCategorySelectList(uid.Value);
 
             return View();
         }
@@ -129,12 +142,7 @@ namespace FinanceTracker.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoryId"] = new SelectList(
-                _context.Categories.Where(c => c.UserId == uid),
-                "Id",
-                "Name",
-                transaction.CategoryId
-            );
+            ViewData["CategoryId"] = GetGroupedCategorySelectList(uid.Value, transaction.CategoryId);
 
             return View(transaction);
         }

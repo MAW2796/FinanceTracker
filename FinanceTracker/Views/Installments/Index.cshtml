@@ -6,18 +6,25 @@
     var progress = ViewBag.Progress as Dictionary<int?, dynamic>;
 }
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-    <div>
-        <h2 class="fw-bold mb-0">📦 Cicilan</h2>
-        <small class="text-muted">Otomatis muncul di Planning saat mendekati 15 hari jatuh tempo</small>
+@section Styles {
+    <link rel="stylesheet" href="~/css/wealth.css" asp-append-version="true" />
+}
+
+<div class="wealth-page">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center page-header">
+        <div>
+            <h2 class="fw-bold mb-0">📦 Cicilan</h2>
+            <small class="text-muted">Otomatis muncul di Planning saat mendekati 15 hari jatuh tempo</small>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary mt-3 mt-md-0">
+            + Tambah Cicilan
+        </a>
     </div>
 
-    <a asp-action="Create" class="btn btn-primary mt-3 mt-md-0">
-        + Tambah Cicilan
-    </a>
-</div>
-
-<table class="table table-bordered table-hover align-middle">
+    <div class="table-card">
+        <table class="table table-bordered table-hover align-middle">
     <thead class="table-light">
         <tr>
             <th>Nama</th>
@@ -69,5 +76,8 @@
         {
             <tr><td colspan="7" class="text-center">Belum ada cicilan</td></tr>
         }
-    </tbody>
-</table>
+            </tbody>
+        </table>
+    </div>
+
+</div>
