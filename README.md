@@ -56,6 +56,7 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 - Fitur Planning (create, edit, delete, sinkron otomatis dengan Transactions)
 - Kategori dibatasi hanya tipe expense untuk planning
 - Dashboard user dengan data dinamis (summary cards, filter bulan, tabel transaksi terbaru, bar chart 3 bulan terakhir, pie chart distribusi pengeluaran per kategori — semua dari database, tidak ada lagi hardcode)
+- AI Chat Assistant (Groq, model `llama-3.3-70b-versatile`) untuk diskusi & saran keuangan, dengan context data transaksi (ringkasan 12 bulan + detail 1 bulan terakhir) dan planning aktif milik user
 
 ### Sedang Dikerjakan 🔄
 
@@ -69,6 +70,11 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 
 ## Perubahan Terbaru
 
+- Redesign UI halaman AI Chat Assistant: tema "ledger/struk keuangan" (garis halus ala kertas pembukuan, tabel balasan AI pakai font monospace, efek garis sobekan di atas input), quick-prompt chips, typing indicator, dan dukungan dark mode. CSS dipisah ke `wwwroot/css/aichat.css` (di-load lewat `@section Styles` baru di `_Layout.cshtml`), tidak dicampur ke `site.css` global.
+- Tambah fitur AI Chat Assistant (`AiChatController`) yang memanggil Groq API (`llama-3.3-70b-versatile`) lewat `IHttpClientFactory`, dengan context dibangun dari data transaksi & planning user (tidak pernah lintas user, selalu difilter `UserId`).
+- API key Groq disimpan via .NET User Secrets (`Groq:ApiKey`), tidak pernah masuk ke repo.
+- Balasan AI dalam format Markdown, dirender ke HTML di client pakai `marked.js`, lalu disanitasi pakai `DOMPurify` sebelum ditampilkan untuk mencegah XSS dari kemungkinan prompt injection.
+- Endpoint `SendMessage` dilindungi `[ValidateAntiForgeryToken]`, validasi panjang pesan (maks 1000 karakter), dan logging error pakai `ILogger` (tanpa membocorkan detail exception ke response).
 - Dashboard (`TransactionsController.Dashboard`) diubah dari hardcode jadi full dynamic: query Saldo/Pemasukan/Pengeluaran per bulan terpilih, distribusi pengeluaran per kategori (pie chart), tren 3 bulan terakhir (bar chart), dan transaksi terbaru — semua dari `AppDbContext`.
 - Filter bulan di Dashboard pakai `<input type="month">`, redirect dengan query parameter `month`, parsing pakai `DateTime.TryParse` (bukan `Parse`) supaya input tidak valid tidak bikin halaman crash.
 - Tambah loading indicator sederhana (disable input + teks "Memuat...") saat filter bulan diganti.

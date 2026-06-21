@@ -41,6 +41,16 @@ builder.Services.AddSession(options =>
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+
+/// =======================
+/// AI (Groq)
+/// =======================
+builder.Services.AddHttpClient("Groq", client =>
+{
+    client.BaseAddress = new Uri("https://api.groq.com/openai/v1/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 var app = builder.Build();
 
 
