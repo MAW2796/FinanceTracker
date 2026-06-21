@@ -24,5 +24,7 @@ namespace FinanceTracker.Data
         public DbSet<DebtPayment> DebtPayments { get; set; }
         public DbSet<Asset> Assets { get; set; }
         public DbSet<AssetValueHistory> AssetValueHistories { get; set; }
+        public DbSet<Investment> Investments { get; set; }
+        public DbSet<InvestmentTransaction> InvestmentTransactions { get; set; }
     }
 }

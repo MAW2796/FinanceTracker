@@ -61,12 +61,12 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 - Fitur Cicilan (`Installment`): plafon, cicilan per bulan, tenor, dan tanggal mulai. Otomatis generate entry di Monthly Planning saat mendekati 15 hari jatuh tempo (dengan catch-up kalau aplikasi tidak dibuka beberapa bulan), progress lunas/berjalan per cicilan, terhubung ke Planning lewat `InstallmentId`
 - Fitur Utang Piutang (`DebtReceivable` + `DebtPayment`): halaman terpisah dari Planning (bukan expense-only), mendukung Utang (kamu yang bayar) maupun Piutang (orang lain bayar ke kamu), bisa bayar sebagian (partial payment), badge "Mendekati jatuh tempo" (≤15 hari), tiap pembayaran otomatis bikin Transaction (Utang → expense, Piutang → income)
 - Fitur Aset (`Asset` + `AssetValueHistory`): daftar aset + total nilai (net worth), update nilai dengan riwayat perubahan otomatis tercatat (naik/turun ditampilkan di halaman Riwayat)
+- Fitur Investasi (`Investment` + `InvestmentTransaction`): mendukung jenis investasi bebas (Saham, Reksadana, Emas, Crypto, Deposito, dll) dengan label unit custom, Beli (top up dengan weighted average buy price otomatis dihitung ulang), Jual (avg buy price tidak berubah, hanya unit berkurang), Update Harga manual, kalkulasi untung/rugi otomatis (nominal & persen), riwayat transaksi per investasi
 
 ### Sedang Dikerjakan 🔄
 
 - Security Testing — coba pakai Burp Suite, test input aneh, cek endpoint tanpa login
 - Rapihkan UI fitur-fitur yang sudah jalan (separator, desain, dll)
-- Investasi (fitur baru, terpisah dari Aset — butuh tracking harga beli, jumlah unit, harga sekarang, untung/rugi)
 
 ### Rencana Selanjutnya
 
@@ -74,6 +74,8 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 - Ekspansi ke Service API
 
 ## Perubahan Terbaru
+
+- Tambah fitur Investasi (`InvestmentsController` + model `Investment`/`InvestmentTransaction`). Terpisah dari modul Aset (jenis bebas, tracking harga beli/sekarang & untung-rugi, bukan sekadar nilai statis), dan sengaja tidak otomatis bikin Transaction di tabel utama (Beli/Jual investasi dianggap perpindahan dana, bukan pengeluaran/pemasukan riil, supaya Dashboard tidak bias). Kolom `Units`/`TotalUnits` pakai presisi `decimal(18,6)` (bukan default `decimal(18,2)`) supaya mendukung pecahan kecil seperti gram emas atau crypto. Average buy price dihitung ulang otomatis tiap kali Beli (weighted average), tetap saat Jual (cuma unit yang berkurang).
 
 - Tambah fitur Aset (`AssetsController` + model `Asset`/`AssetValueHistory`). Tiap kali nilai aset di-update, otomatis tercatat sebagai entry baru di `AssetValueHistory` (termasuk nilai awal saat aset dibuat), bisa dilihat trennya (naik/turun) di halaman Riwayat per aset. Input nilai pakai pola parsing manual (`string` → `Where(char.IsDigit)` → `TryParse`), sejak awal menghindari bug culture parsing yang sempat terjadi di modul Utang Piutang.
 

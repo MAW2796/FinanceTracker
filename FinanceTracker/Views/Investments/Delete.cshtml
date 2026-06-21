@@ -1,0 +1,41 @@
+﻿@using System.Globalization
+@model FinanceTracker.Models.Investment
+
+@{
+    ViewData["Title"] = "Hapus Investasi";
+}
+
+<div class="container mt-4">
+
+    <h3 class="fw-bold text-danger mb-4">Hapus Investasi</h3>
+
+    <div class="alert alert-warning">
+        Seluruh riwayat transaksi Beli/Jual investasi ini juga akan ikut terhapus.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Nama</dt>
+                <dd class="col-sm-8">@Model.Name</dd>
+
+                <dt class="col-sm-4">Jenis</dt>
+                <dd class="col-sm-8">@Model.Type</dd>
+
+                <dt class="col-sm-4">Total Unit</dt>
+                <dd class="col-sm-8">@Model.TotalUnits.ToString("0.######") @Model.UnitLabel</dd>
+
+                <dt class="col-sm-4">Nilai Sekarang</dt>
+                <dd class="col-sm-8">Rp @((Model.TotalUnits * Model.CurrentPrice).ToString("N0", new CultureInfo("id-ID")))</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4 d-flex justify-content-between">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <a asp-action="Index" class="btn btn-outline-secondary">← Kembali</a>
+        <button type="submit" class="btn btn-danger px-4">Ya, Hapus</button>
+    </form>
+
+</div>

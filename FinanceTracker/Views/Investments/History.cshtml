@@ -1,0 +1,61 @@
+﻿@using System.Globalization
+@model List<FinanceTracker.Models.InvestmentTransaction>
+
+@{
+    var investment = ViewBag.Investment as FinanceTracker.Models.Investment;
+    ViewData["Title"] = "Riwayat - " + investment?.Name;
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Riwayat Transaksi - @investment?.Name</h3>
+        <small class="text-muted">
+            Total dimiliki: @investment?.TotalUnits.ToString("0.######") @investment?.UnitLabel
+            · Avg Beli: Rp @investment?.AvgBuyPrice.ToString("N0", new CultureInfo("id-ID"))
+        </small>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Tanggal</th>
+                <th>Tipe</th>
+                <th>Unit</th>
+                <th>Harga/Unit</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var t in Model)
+                {
+                    <tr>
+                        <td>@t.TransactionDate.ToString("dd MMM yyyy HH:mm")</td>
+                        <td>
+                            @if (t.Type == "Buy")
+                            {
+                                <span class="badge bg-success">Beli</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Jual</span>
+                            }
+                        </td>
+                        <td>@t.Units.ToString("0.######") @investment?.UnitLabel</td>
+                        <td>Rp @t.PricePerUnit.ToString("N0", new CultureInfo("id-ID"))</td>
+                        <td>Rp @((t.Units * t.PricePerUnit).ToString("N0", new CultureInfo("id-ID")))</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5" class="text-center">Belum ada transaksi</td></tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">← Kembali</a>
+
+</div>
