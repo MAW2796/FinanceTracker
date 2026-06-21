@@ -75,6 +75,8 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 
 ## Perubahan Terbaru
 
+- Tambah filter bulan di halaman Monthly Planning (`<input type="month">`, pola sama seperti Dashboard), supaya bisa lihat proyeksi planning bulan-bulan ke depan. Section "Overdue" otomatis cuma tampil saat melihat bulan berjalan (tidak relevan untuk bulan ke depan). Tambah "Total Planning Bulan Ini" di header.
+- Tambah section "Proyeksi Cicilan" (read-only, info box biru) di halaman Planning: menampilkan estimasi cicilan yang **belum** ter-generate sebagai row Planning beneran (di luar window 15 hari), khusus untuk bulan yang sedang difilter — supaya tetap bisa dipakai itung-itungan jauh ke depan tanpa melanggar aturan generate 15 hari yang sudah ada.
 - UI fix: badge kategori di halaman Transaksi sekarang berwarna sesuai tipe (hijau = Income, merah = Expense), konsisten dengan halaman Kategori. Dropdown pilih kategori di form Tambah/Edit Transaksi sekarang dikelompokkan pakai `<optgroup>` ("Pemasukan" vs "Pengeluaran") lewat helper `GetGroupedCategorySelectList`, supaya tidak tercampur acak seperti sebelumnya.
 - Polesan ringan UI untuk 4 modul baru (Cicilan, Utang Piutang, Aset, Investasi): CSS terpisah (`wwwroot/css/wealth.css`, di-scope lewat class `.wealth-page` supaya tidak bentrok dengan halaman lain), tabel dibungkus card, badge lebih membulat, ringkasan total ditampilkan sebagai pill, dukungan dark mode.
 - Context AI Chat Assistant diperluas: sekarang menyertakan ringkasan Cicilan aktif, Utang Piutang yang belum lunas, daftar Aset, dan daftar Investasi (beserta untung/rugi), selain data Transaksi & Planning yang sudah ada sebelumnya.

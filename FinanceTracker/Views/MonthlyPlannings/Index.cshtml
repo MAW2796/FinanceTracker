@@ -5,18 +5,63 @@
     var upcoming = ViewBag.Upcoming as List<FinanceTracker.Models.MonthlyPlanning>;
     var overdue = ViewBag.Overdue as List<FinanceTracker.Models.MonthlyPlanning>;
     var paid = ViewBag.Paid as List<FinanceTracker.Models.MonthlyPlanning>;
+    var selectedMonthTotal = (decimal)ViewBag.SelectedMonthTotal;
 }
 
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
     <div>
         <h2 class="fw-bold mb-0">📅 Monthly Planning</h2>
-        <strong>Total Upcoming:</strong> Rp @upcoming?.Sum(x => x.Amount).ToString("N0", new CultureInfo("id-ID"))
+        <strong>Total Planning Bulan Ini:</strong> Rp @selectedMonthTotal.ToString("N0", new CultureInfo("id-ID"))
     </div>
 
     <a asp-action="Create" class="btn btn-primary mt-3 mt-md-0">
         + Tambah Planning
     </a>
 </div>
+
+<div class="mb-4 d-flex align-items-center gap-2">
+    <label for="monthFilter" class="form-label fw-semibold mb-0">Lihat bulan:</label>
+    <input type="month" class="form-control" id="monthFilter" value="@ViewBag.Month" style="max-width: 200px;" />
+</div>
+
+@{
+    var projected = ViewBag.ProjectedInstallments as List<dynamic>;
+    var projectedTotal = (decimal)ViewBag.ProjectedTotal;
+}
+
+@if (projected != null && projected.Any())
+{
+    <div class="alert alert-info">
+        <strong>📊 Proyeksi Cicilan Bulan Ini (belum aktif, hanya estimasi)</strong>
+        <table class="table table-sm mb-0 mt-2">
+            <thead>
+                <tr>
+                    <th>Cicilan</th>
+                    <th>Kategori</th>
+                    <th>Jatuh Tempo (estimasi)</th>
+                    <th>Jumlah</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in projected)
+                {
+                    <tr>
+                        <td>@p.Title</td>
+                        <td>@p.CategoryName</td>
+                        <td>@(((DateTime)p.DueDate).ToString("dd MMM yyyy"))</td>
+                        <td>Rp @(((decimal)p.Amount).ToString("N0", new CultureInfo("id-ID")))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="text-end mt-2">
+            <strong>Total Proyeksi: Rp @projectedTotal.ToString("N0", new CultureInfo("id-ID"))</strong>
+        </div>
+        <small class="text-muted d-block mt-2">
+            Cicilan ini akan otomatis masuk daftar Planning beneran saat sudah mendekati 15 hari jatuh tempo.
+        </small>
+    </div>
+}
 
 <!-- 🟡 UPCOMING -->
 <h4 class="text-warning">Upcoming</h4>
@@ -164,3 +209,11 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        document.getElementById('monthFilter').addEventListener('change', function () {
+            window.location.href = '@Url.Action("Index", "MonthlyPlannings")?month=' + this.value;
+        });
+    </script>
+}

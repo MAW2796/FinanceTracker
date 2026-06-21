@@ -19,7 +19,7 @@ namespace FinanceTracker.Controllers
         }
 
         // 🔥 INDEX
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string month)
         {
             var uid = GetUserId();
             if (uid == null)
@@ -29,15 +29,28 @@ namespace FinanceTracker.Controllers
 
             var now = DateTime.Now;
 
+            DateTime selectedMonth;
+            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month, out var parsedMonth))
+            {
+                selectedMonth = new DateTime(parsedMonth.Year, parsedMonth.Month, 1);
+            }
+            else
+            {
+                selectedMonth = new DateTime(now.Year, now.Month, 1);
+                month = selectedMonth.ToString("yyyy-MM");
+            }
+
+            bool isCurrentMonth = selectedMonth.Year == now.Year && selectedMonth.Month == now.Month;
+
             var data = await _context.MonthlyPlannings
                 .Include(x => x.Category)
                 .Where(x => x.UserId == uid &&
                     (
-                        // planning bulan ini
-                        (x.DueDate.Month == now.Month && x.DueDate.Year == now.Year)
+                        // planning di bulan yang dipilih
+                        (x.DueDate.Month == selectedMonth.Month && x.DueDate.Year == selectedMonth.Year)
 
-                        // atau overdue dari bulan sebelumnya yang belum dibayar
-                        || (!x.IsPaid && x.DueDate < new DateTime(now.Year, now.Month, 1))
+                        // kalau yang dipilih bulan sekarang, ikut tampilkan overdue dari bulan-bulan sebelumnya
+                        || (isCurrentMonth && !x.IsPaid && x.DueDate < new DateTime(now.Year, now.Month, 1))
                     ))
                 .ToListAsync();
 
@@ -55,6 +68,43 @@ namespace FinanceTracker.Controllers
                 .Where(x => x.IsPaid)
                 .OrderByDescending(x => x.PaidDate)
                 .ToList();
+
+            ViewBag.Month = month;
+            ViewBag.SelectedMonthTotal = data.Sum(x => x.Amount);
+
+            // Proyeksi cicilan yang BELUM di-generate (di luar window 15 hari),
+            // khusus untuk bulan yang dipilih -> cuma buat itung-itungan, read-only
+            var activeInstallments = await _context.Installments
+                .Include(i => i.Category)
+                .Where(i => i.UserId == uid && i.IsActive)
+                .ToListAsync();
+
+            var projectedInstallments = new List<dynamic>();
+
+            foreach (var inst in activeInstallments)
+            {
+                var generatedCount = await _context.MonthlyPlannings
+                    .CountAsync(p => p.InstallmentId == inst.Id);
+
+                for (int n = generatedCount; n < inst.TenorMonths; n++)
+                {
+                    var dueDate = inst.StartDate.AddMonths(n);
+
+                    if (dueDate.Year == selectedMonth.Year && dueDate.Month == selectedMonth.Month)
+                    {
+                        projectedInstallments.Add(new
+                        {
+                            Title = $"{inst.Name} ({n + 1}/{inst.TenorMonths})",
+                            Amount = inst.MonthlyAmount,
+                            CategoryName = inst.Category?.Name,
+                            DueDate = dueDate
+                        });
+                    }
+                }
+            }
+
+            ViewBag.ProjectedInstallments = projectedInstallments;
+            ViewBag.ProjectedTotal = projectedInstallments.Sum(x => (decimal)x.Amount);
 
             return View();
         }
