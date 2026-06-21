@@ -20,5 +20,7 @@ namespace FinanceTracker.Data
         public DbSet<Goal> Goals { get; set; }
         public DbSet<GoalContribution> GoalContributions { get; set; }
         public DbSet<Installment> Installments { get; set; }
+        public DbSet<DebtReceivable> DebtReceivables { get; set; }
+        public DbSet<DebtPayment> DebtPayments { get; set; }
     }
 }

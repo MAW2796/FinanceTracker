@@ -1,0 +1,192 @@
+﻿@using System.Globalization
+@{
+    ViewData["Title"] = "Utang Piutang";
+    var utang = ViewBag.Utang as List<FinanceTracker.Models.DebtItemViewModel>;
+    var piutang = ViewBag.Piutang as List<FinanceTracker.Models.DebtItemViewModel>;
+    var today = (DateTime)ViewBag.Today;
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">🤝 Utang Piutang</h2>
+    </div>
+
+    <a asp-action="Create" class="btn btn-primary mt-3 mt-md-0">
+        + Tambah Utang/Piutang
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<!-- UTANG -->
+<h4 class="text-danger">Utang (saya yang bayar)</h4>
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-danger">
+        <tr>
+            <th>Nama</th>
+            <th>Total</th>
+            <th>Sisa</th>
+            <th>Jatuh Tempo</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (utang != null && utang.Any())
+        {
+            foreach (var x in utang)
+            {
+                bool isDueSoon = (x.Item.DueDate - today).TotalDays <= 15;
+                bool isOverdue = x.Item.DueDate < today;
+                bool isPaidOff = x.Remaining <= 0;
+
+                <tr class="@(isPaidOff ? "table-success" : (isOverdue ? "table-danger" : ""))">
+                    <td>
+                        @x.Item.PersonName
+                        @if (!isPaidOff && isDueSoon)
+                        {
+                            <span class="badge bg-warning text-dark ms-1">Mendekati jatuh tempo</span>
+                        }
+                    </td>
+                    <td>Rp @(((decimal)x.Item.TotalAmount).ToString("N0", new CultureInfo("id-ID")))</td>
+                    <td>Rp @(((decimal)x.Remaining).ToString("N0", new CultureInfo("id-ID")))</td>
+                    <td>@(((DateTime)x.Item.DueDate).ToString("dd MMM yyyy"))</td>
+                    <td>
+                        @if (!isPaidOff)
+                        {
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payModal-@x.Item.Id">Bayar</button>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Lunas</span>
+                        }
+                        <a asp-action="Delete" asp-route-id="@x.Item.Id" class="btn btn-outline-danger btn-sm">Hapus</a>
+                    </td>
+                </tr>
+
+                <!-- MODAL BAYAR -->
+                <div class="modal fade" id="payModal-@x.Item.Id" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form asp-action="AddPayment" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@x.Item.Id" />
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Bayar Utang - @x.Item.PersonName</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label class="form-label">Sisa: Rp @(((decimal)x.Remaining).ToString("N0", new CultureInfo("id-ID")))</label>
+                                    <input type="text" name="amount" class="form-control pay-amount-input" placeholder="Nominal bayar" />
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success">Simpan Pembayaran</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <tr><td colspan="5" class="text-center">Tidak ada utang</td></tr>
+        }
+    </tbody>
+</table>
+
+<!-- PIUTANG -->
+<h4 class="text-success mt-5">Piutang (orang lain yang bayar)</h4>
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-success">
+        <tr>
+            <th>Nama</th>
+            <th>Total</th>
+            <th>Sisa</th>
+            <th>Jatuh Tempo</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (piutang != null && piutang.Any())
+        {
+            foreach (var x in piutang)
+            {
+                bool isDueSoon = (x.Item.DueDate - today).TotalDays <= 15;
+                bool isOverdue = x.Item.DueDate < today;
+                bool isPaidOff = x.Remaining <= 0;
+
+                <tr class="@(isPaidOff ? "table-success" : (isOverdue ? "table-warning" : ""))">
+                    <td>
+                        @x.Item.PersonName
+                        @if (!isPaidOff && isDueSoon)
+                        {
+                            <span class="badge bg-warning text-dark ms-1">Mendekati jatuh tempo</span>
+                        }
+                    </td>
+                    <td>Rp @(((decimal)x.Item.TotalAmount).ToString("N0", new CultureInfo("id-ID")))</td>
+                    <td>Rp @(((decimal)x.Remaining).ToString("N0", new CultureInfo("id-ID")))</td>
+                    <td>@(((DateTime)x.Item.DueDate).ToString("dd MMM yyyy"))</td>
+                    <td>
+                        @if (!isPaidOff)
+                        {
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payModal-@x.Item.Id">Terima</button>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Lunas</span>
+                        }
+                        <a asp-action="Delete" asp-route-id="@x.Item.Id" class="btn btn-outline-danger btn-sm">Hapus</a>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="payModal-@x.Item.Id" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form asp-action="AddPayment" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@x.Item.Id" />
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Terima Piutang - @x.Item.PersonName</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label class="form-label">Sisa: Rp @(((decimal)x.Remaining).ToString("N0", new CultureInfo("id-ID")))</label>
+                                    <input type="text" name="amount" class="form-control pay-amount-input" placeholder="Nominal diterima" />
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="submit" class="btn btn-success">Simpan Penerimaan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <tr><td colspan="5" class="text-center">Tidak ada piutang</td></tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        function formatNumber(value) { return value.replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+        function removeFormat(value) { return value.replace(/\./g, ""); }
+
+        document.querySelectorAll('.pay-amount-input').forEach(function (input) {
+            input.addEventListener('input', function () {
+                let value = this.value.replace(/\D/g, "");
+                this.value = value ? formatNumber(value) : "";
+            });
+            input.closest('form').addEventListener('submit', function () {
+                input.value = removeFormat(input.value);
+            });
+        });
+    </script>
+}

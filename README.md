@@ -59,12 +59,12 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 - Dashboard user dengan data dinamis (summary cards, filter bulan, tabel transaksi terbaru, bar chart 3 bulan terakhir, pie chart distribusi pengeluaran per kategori — semua dari database, tidak ada lagi hardcode)
 - AI Chat Assistant (Groq, model `llama-3.3-70b-versatile`) untuk diskusi & saran keuangan, dengan context data transaksi (ringkasan 12 bulan + detail 1 bulan terakhir) dan planning aktif milik user
 - Fitur Cicilan (`Installment`): plafon, cicilan per bulan, tenor, dan tanggal mulai. Otomatis generate entry di Monthly Planning saat mendekati 15 hari jatuh tempo (dengan catch-up kalau aplikasi tidak dibuka beberapa bulan), progress lunas/berjalan per cicilan, terhubung ke Planning lewat `InstallmentId`
+- Fitur Utang Piutang (`DebtReceivable` + `DebtPayment`): halaman terpisah dari Planning (bukan expense-only), mendukung Utang (kamu yang bayar) maupun Piutang (orang lain bayar ke kamu), bisa bayar sebagian (partial payment), badge "Mendekati jatuh tempo" (≤15 hari), tiap pembayaran otomatis bikin Transaction (Utang → expense, Piutang → income)
 
 ### Sedang Dikerjakan 🔄
 
 - Security Testing — coba pakai Burp Suite, test input aneh, cek endpoint tanpa login
 - Rapihkan UI fitur-fitur yang sudah jalan (separator, desain, dll)
-- Utang Piutang (reminder jatuh tempo, bisa bayar sebagian/partial payment, halaman terpisah dari Planning)
 - Aset (daftar aset + riwayat perubahan nilai)
 
 ### Rencana Selanjutnya
@@ -74,6 +74,9 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 
 ## Perubahan Terbaru
 
+- Tambah fitur Utang Piutang (`DebtReceivablesController` + model `DebtReceivable`/`DebtPayment`). Mendukung pembayaran sebagian (partial payment) lewat modal di halaman index, tiap pembayaran otomatis bikin `Transaction` (Utang = expense, Piutang = income). Delete `DebtReceivable` ikut menghapus `DebtPayment` terkait (cascade), tapi Transaction historis tetap dipertahankan.
+- **Bugfix penting**: nominal pembayaran sebelumnya dikirim sebagai `decimal` langsung dari form, rawan salah parsing kalau request culture `en-US` aktif (titik ribuan dibaca sebagai desimal, contoh "100.000" terbaca 100). Sekarang nominal dikirim sebagai `string`, dibersihkan manual di server (`Where(char.IsDigit)`) lalu di-parse — tidak lagi tergantung culture sama sekali.
+- **Bugfix**: ViewBag berisi `List<AnonymousType>` tidak bisa di-cast ke `List<dynamic>` di Razor view (selalu jadi `null` secara diam-diam). Diganti pakai ViewModel asli (`DebtItemViewModel`) untuk data gabungan entity + hasil kalkulasi.
 - Tambah fitur Cicilan (`InstallmentsController` + `Installment` model). Generator (`GenerateInstallmentPlannings`) dipanggil tiap kali halaman Monthly Planning dibuka: cek semua cicilan aktif milik user, generate row `MonthlyPlanning` baru (dengan `InstallmentId` terisi) untuk periode yang jatuh temponya sudah dalam 15 hari ke depan atau lewat, pakai while-loop supaya catch-up kalau ada periode yang terlewat. Cicilan otomatis `IsActive = false` setelah semua periode (`TenorMonths`) ke-generate. Delete cicilan tidak ikut menghapus Planning yang sudah ter-generate (riwayat tetap aman), hanya melepas relasinya (`InstallmentId = null`).
 - Redesign UI halaman AI Chat Assistant: tema "ledger/struk keuangan" (garis halus ala kertas pembukuan, tabel balasan AI pakai font monospace, efek garis sobekan di atas input), quick-prompt chips, typing indicator, dan dukungan dark mode. CSS dipisah ke `wwwroot/css/aichat.css` (di-load lewat `@section Styles` baru di `_Layout.cshtml`), tidak dicampur ke `site.css` global.
 - Tambah fitur AI Chat Assistant (`AiChatController`) yang memanggil Groq API (`llama-3.3-70b-versatile`) lewat `IHttpClientFactory`, dengan context dibangun dari data transaksi & planning user (tidak pernah lintas user, selalu difilter `UserId`).

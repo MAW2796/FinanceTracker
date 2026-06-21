@@ -1,0 +1,48 @@
+﻿@using System.Globalization
+@model FinanceTracker.Models.DebtReceivable
+
+@{
+    ViewData["Title"] = "Hapus Utang/Piutang";
+    var paid = Model.Payments.Sum(p => p.Amount);
+}
+
+<div class="container mt-4">
+
+    <h3 class="fw-bold text-danger mb-4">Hapus @Model.Type</h3>
+
+    <div class="alert alert-warning">
+        Riwayat pembayaran yang sudah tercatat di Transaksi <strong>tidak akan ikut terhapus</strong> — hanya record @Model.Type ini dan jejak pembayarannya (`DebtPayment`) yang dihapus.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Tipe</dt>
+                <dd class="col-sm-8">@Model.Type</dd>
+
+                <dt class="col-sm-4">Nama Pihak</dt>
+                <dd class="col-sm-8">@Model.PersonName</dd>
+
+                <dt class="col-sm-4">Kategori</dt>
+                <dd class="col-sm-8">@Model.Category?.Name</dd>
+
+                <dt class="col-sm-4">Total</dt>
+                <dd class="col-sm-8">Rp @Model.TotalAmount.ToString("N0", new CultureInfo("id-ID"))</dd>
+
+                <dt class="col-sm-4">Sudah Dibayar</dt>
+                <dd class="col-sm-8">Rp @paid.ToString("N0", new CultureInfo("id-ID"))</dd>
+
+                <dt class="col-sm-4">Jatuh Tempo</dt>
+                <dd class="col-sm-8">@Model.DueDate.ToString("dd MMM yyyy")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4 d-flex justify-content-between">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <a asp-action="Index" class="btn btn-outline-secondary">← Kembali</a>
+        <button type="submit" class="btn btn-danger px-4">Ya, Hapus</button>
+    </form>
+
+</div>

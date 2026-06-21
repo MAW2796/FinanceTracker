@@ -1,0 +1,134 @@
+﻿@using System.Globalization
+@model FinanceTracker.Models.DebtReceivable
+
+@{
+    ViewData["Title"] = "Tambah Utang/Piutang";
+}
+
+<div class="container mt-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold mb-0">Tambah Utang / Piutang</h3>
+        <small class="text-muted">Utang = kamu yang bayar, Piutang = orang lain yang bayar ke kamu</small>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="row g-3">
+
+                    <!-- TYPE -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tipe</label>
+                        <select name="Type" id="typeSelect" class="form-select">
+                            <option value="Utang">Utang (saya pinjam)</option>
+                            <option value="Piutang">Piutang (orang pinjam ke saya)</option>
+                        </select>
+                        <span asp-validation-for="Type" class="text-danger small"></span>
+                    </div>
+
+                    <!-- PERSON NAME -->
+                    <div class="col-md-6">
+                        <label asp-for="PersonName" class="form-label fw-semibold">Nama Pihak Terkait</label>
+                        <input asp-for="PersonName" class="form-control" placeholder="Contoh: Budi" />
+                        <span asp-validation-for="PersonName" class="text-danger small"></span>
+                    </div>
+
+                    <!-- CATEGORY (Expense, muncul kalau Utang) -->
+                    <div class="col-md-6" id="expenseCategoryWrap">
+                        <label class="form-label fw-semibold">Kategori (Pengeluaran)</label>
+                        <select id="expenseCategorySelect" class="form-select" asp-items="ViewBag.ExpenseCategories">
+                            <option value="">-- Pilih Kategori --</option>
+                        </select>
+                    </div>
+
+                    <!-- CATEGORY (Income, muncul kalau Piutang) -->
+                    <div class="col-md-6 d-none" id="incomeCategoryWrap">
+                        <label class="form-label fw-semibold">Kategori (Pemasukan)</label>
+                        <select id="incomeCategorySelect" class="form-select" asp-items="ViewBag.IncomeCategories">
+                            <option value="">-- Pilih Kategori --</option>
+                        </select>
+                    </div>
+
+                    <!-- hidden field yang beneran dikirim -->
+                    <input type="hidden" name="CategoryId" id="categoryIdHidden" />
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+
+                    <!-- TOTAL AMOUNT -->
+                    <div class="col-md-6">
+                        <label asp-for="TotalAmount" class="form-label fw-semibold">Total Jumlah</label>
+                        <input type="text" id="amountInput" name="TotalAmount" class="form-control" placeholder="Contoh: 1.000.000" />
+                        <span asp-validation-for="TotalAmount" class="text-danger small"></span>
+                    </div>
+
+                    <!-- DUE DATE -->
+                    <div class="col-md-6">
+                        <label asp-for="DueDate" class="form-label fw-semibold">Jatuh Tempo</label>
+                        <input asp-for="DueDate" type="date" class="form-control" />
+                        <span asp-validation-for="DueDate" class="text-danger small"></span>
+                    </div>
+
+                    <!-- NOTES -->
+                    <div class="col-12">
+                        <label asp-for="Notes" class="form-label fw-semibold">Catatan (opsional)</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">← Kembali</a>
+                    <button type="submit" class="btn btn-primary px-4">Simpan</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            const typeSelect = document.getElementById('typeSelect');
+            const expenseWrap = document.getElementById('expenseCategoryWrap');
+            const incomeWrap = document.getElementById('incomeCategoryWrap');
+            const expenseSelect = document.getElementById('expenseCategorySelect');
+            const incomeSelect = document.getElementById('incomeCategorySelect');
+            const categoryIdHidden = document.getElementById('categoryIdHidden');
+
+            function syncCategory() {
+                if (typeSelect.value === 'Utang') {
+                    expenseWrap.classList.remove('d-none');
+                    incomeWrap.classList.add('d-none');
+                    categoryIdHidden.value = expenseSelect.value;
+                } else {
+                    incomeWrap.classList.remove('d-none');
+                    expenseWrap.classList.add('d-none');
+                    categoryIdHidden.value = incomeSelect.value;
+                }
+            }
+
+            typeSelect.addEventListener('change', syncCategory);
+            expenseSelect.addEventListener('change', syncCategory);
+            incomeSelect.addEventListener('change', syncCategory);
+            syncCategory();
+
+            // format angka ribuan
+            function formatNumber(value) { return value.replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+            function removeFormat(value) { return value.replace(/\./g, ""); }
+            const amountInput = document.getElementById("amountInput");
+            amountInput.addEventListener("input", function () {
+                let value = this.value.replace(/\D/g, "");
+                this.value = value ? formatNumber(value) : "";
+            });
+            amountInput.closest("form").addEventListener("submit", function () {
+                amountInput.value = removeFormat(amountInput.value);
+            });
+        </script>
+
+        <partial name="_ValidationScriptsPartial" />
+    }
+
+</div>
