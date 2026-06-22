@@ -1,6 +1,6 @@
 # FinanceTracker (MAWApps)
 
-Personal finance tracking app yang dibangun sebagai project belajar teknologi **.NET** — mulai dari web, nantinya mobile, dan service API. Tujuannya untuk mencoba berbagai aspek development satu per satu sambil terus belajar.
+Personal finance tracking app yang dibangun sebagai project pribadi  **.NET** — mulai dari web, nantinya mobile, dan service API. Tujuannya untuk dipakai sendiri kebutuhan sendiri sehari hari.
 
 ## Tentang Project
 
@@ -63,10 +63,6 @@ Dengan pendekatan ini, setiap fitur ditest sebelum lanjut ke fitur berikutnya, s
 - Fitur Aset (`Asset` + `AssetValueHistory`): daftar aset + total nilai (net worth), update nilai dengan riwayat perubahan otomatis tercatat (naik/turun ditampilkan di halaman Riwayat)
 - Fitur Investasi (`Investment` + `InvestmentTransaction`): mendukung jenis investasi bebas (Saham, Reksadana, Emas, Crypto, Deposito, dll) dengan label unit custom, Beli (top up dengan weighted average buy price otomatis dihitung ulang), Jual (avg buy price tidak berubah, hanya unit berkurang), Update Harga manual, kalkulasi untung/rugi otomatis (nominal & persen), riwayat transaksi per investasi
 
-### Sedang Dikerjakan 🔄
-
-- Security Testing — coba pakai Burp Suite, test input aneh, cek endpoint tanpa login
-- Rapihkan UI fitur-fitur yang sudah jalan (separator, desain, dll)
 
 ### Rencana Selanjutnya
 
