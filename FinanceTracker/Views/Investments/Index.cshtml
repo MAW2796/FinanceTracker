@@ -42,7 +42,7 @@
 
     <div class="table-card">
     <table class="table table-bordered table-hover align-middle">
-    <thead class="table-light">
+   @*  <thead class="table-light">
         <tr>
             <th>Nama</th>
             <th>Jenis</th>
@@ -53,9 +53,9 @@
             <th>Untung/Rugi</th>
             <th>Aksi</th>
         </tr>
-    </thead>
+    </thead> *@
     <tbody>
-        @if (Model != null && Model.Any())
+       @*  @if (Model != null && Model.Any())
         {
             foreach (var item in Model)
             {
@@ -173,6 +173,178 @@
                             </form>
                         </div>
                     </div>
+                </div>
+            }
+        } *@
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var group in Model
+                .OrderBy(x => x.Type)
+                .GroupBy(x => x.Type))
+            {
+                <h4 class="mt-4 mb-3">
+                    @group.Key
+                </h4>
+
+                <div class="table-card mb-4">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Unit</th>
+                                <th>Avg Beli</th>
+                                <th>Harga Sekarang</th>
+                                <th>Nilai Sekarang</th>
+                                <th>Untung/Rugi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        @foreach (var item in group.OrderBy(x => x.Name))
+                        {
+                            var currentValue = item.TotalUnits * item.CurrentPrice;
+                            var costValue = item.TotalUnits * item.AvgBuyPrice;
+                            var gainLoss = currentValue - costValue;
+                            var gainLossPercent = costValue > 0
+                                ? (gainLoss / costValue) * 100
+                                : 0;
+
+                            <tr>
+                                <td>@item.Name</td>
+
+                                <td>
+                                    @item.TotalUnits.ToString("0.######")
+                                    @item.UnitLabel
+                                </td>
+
+                                <td>
+                                    Rp @item.AvgBuyPrice.ToString("N0", new CultureInfo("id-ID"))
+                                </td>
+
+                                <td>
+                                    Rp @item.CurrentPrice.ToString("N0", new CultureInfo("id-ID"))
+                                </td>
+
+                                <td>
+                                    Rp @currentValue.ToString("N0", new CultureInfo("id-ID"))
+                                </td>
+
+                                <td>
+                                    @if (gainLoss >= 0)
+                                    {
+                                        <span class="text-success">
+                                            +Rp @gainLoss.ToString("N0", new CultureInfo("id-ID"))
+                                            (@gainLossPercent.ToString("0.0")%)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">
+                                            -Rp @Math.Abs(gainLoss).ToString("N0", new CultureInfo("id-ID"))
+                                            (@gainLossPercent.ToString("0.0")%)
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-nowrap">
+                                     <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#buyModal-@item.Id">Beli</button>
+                                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#sellModal-@item.Id">Jual</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#priceModal-@item.Id">Update Harga</button>
+                                    <a asp-action="History" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">Riwayat</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Hapus</a>
+                                </td>
+                            </tr>
+
+                            <!-- MODAL BELI -->
+                            <div class="modal fade" id="buyModal-@item.Id" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form asp-action="Buy" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Beli Tambahan - @item.Name</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Jumlah Unit</label>
+                                                    <input type="text" name="units" class="form-control" placeholder="Contoh: 5 atau 0.25" inputmode="decimal" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Harga per Unit</label>
+                                                    <input type="text" name="pricePerUnit" class="form-control buy-sell-price-input" placeholder="Harga beli" />
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-success">Simpan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODAL JUAL -->
+                            <div class="modal fade" id="sellModal-@item.Id" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form asp-action="Sell" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Jual - @item.Name</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p class="text-muted small">Dimiliki: @item.TotalUnits.ToString("0.######") @item.UnitLabel</p>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Jumlah Unit Dijual</label>
+                                                    <input type="text" name="units" class="form-control" placeholder="Contoh: 5 atau 0.25" inputmode="decimal" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Harga Jual per Unit</label>
+                                                    <input type="text" name="pricePerUnit" class="form-control buy-sell-price-input" placeholder="Harga jual" />
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-warning">Simpan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- MODAL UPDATE HARGA -->
+                            <div class="modal fade" id="priceModal-@item.Id" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form asp-action="UpdatePrice" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Update Harga - @item.Name</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <label class="form-label">Harga sekarang: Rp @item.CurrentPrice.ToString("N0", new CultureInfo("id-ID"))</label>
+                                                <input type="text" name="newPrice" class="form-control buy-sell-price-input" placeholder="Harga terbaru" />
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        </tbody>
+                    </table>
                 </div>
             }
         }
